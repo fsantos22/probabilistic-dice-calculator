@@ -14,7 +14,10 @@ function App() {
   const [answer, setAnswer] = useState("Resultado:");
 
   const handleAddDice = () => {
-    if (!dices.length < 2 && dices[0].dice === "") {
+    if (
+      (!dices.length < 2 && dices[0].dice === "") ||
+      (dices.length > 1 && dices.length(dices.length - 1).dice === "")
+    ) {
       alert("Nenhum dado foi preenchido ainda");
       return;
     }
@@ -41,7 +44,12 @@ function App() {
     return (
       <label key={dices.length - 1} id={dices.length - 1}>
         Tipo de dado:
-        <input type="number" min="2" max="100" onChange={() => handleChange(index)} />
+        <input
+          type="number"
+          min="2"
+          max="100"
+          onChange={() => handleChange(index)}
+        />
         <span> + </span>
         <label>
           Bonus fixo:
@@ -75,7 +83,7 @@ function App() {
     if (dices.lenght < 2 || dices[0].dice === "") {
       alert("Nenhum dado foi preenchido ainda");
     }
-    const dicesObj = [...dices];
+    const dicesObj = dices.filter((dice) => dice.dice !== '')
 
     const sumOfCombinations = dicesObj.reduce(
       (total, current) => total * current.dice,
