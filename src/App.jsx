@@ -1,29 +1,30 @@
-import { useState } from "react";
-import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
-import TextField from "@mui/material/TextField";
-import MenuItem from "@mui/material/MenuItem";
-import InputAdornment from "@mui/material/InputAdornment";
 import Button from "@mui/material/Button";
+import Container from "@mui/material/Container";
+import InputAdornment from "@mui/material/InputAdornment";
+import MenuItem from "@mui/material/MenuItem";
+import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-
+import { useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 function App() {
   const [range, setRange] = useState("");
   const [dices, setDices] = useState([
     {
       index: "",
       dice: "",
-      bonus: "",
+      bonus: 0,
     },
   ]);
-  const [opType, setOpType] = useState("");
-  const [answer, setAnswer] = useState("Resultado:");
+  const [opType, setOpType] = useState("gte");
+  const [answer, setAnswer] = useState("");
 
   const handleAddDice = () => {
     const dicesObj = dices.filter((dice) => dice.dice === "");
 
     if (dicesObj.length > 0) {
-      alert("Você não definiu o valor de algum dos dados");
+      toast.warn("Você não definiu o valor de algum dos dados");
       return;
     }
     setDices([
@@ -87,16 +88,20 @@ function App() {
   }
 
   const handleCalculate = () => {
-    if (opType === '') {
-      alert("Defina uma condição antes de calcular");
+    if (opType === "") {
+      // alert("Defina uma condição antes de calcular");
+      toast.warn("Defina uma condição antes de calcular");
       return;
     }
     if (range < 1) {
-      alert("O intervalo de avaliação não foi selecionado");
+      // alert("O intervalo de avaliação não foi selecionado");
+      toast.warn("O intervalo de avaliação não foi selecionado");
       return;
     }
     if (dices.lenght < 2 || dices[0].dice === "") {
-      alert("Nenhum dado foi preenchido ainda");
+      // alert("Nenhum dado foi preenchido ainda");
+      toast.warn("Nenhum dado foi preenchido ainda");
+      return
     }
     const dicesObj = dices.filter((dice) => dice.dice !== "");
 
@@ -141,7 +146,7 @@ function App() {
   const handleChange = (index, e) => {
     let arr = [...dices];
     const text = e.target.value;
-    const numericValue = parseInt(text.replace(/[^0-9]/g, "")) || '';
+    const numericValue = parseInt(text.replace(/[^0-9]/g, "")) || "";
     arr[index].dice = numericValue > 100 ? 100 : numericValue;
     arr[index].index = index;
     setDices(arr);
@@ -150,7 +155,7 @@ function App() {
   const handleChangeBonus = (index, e) => {
     let arr = [...dices];
     const text = e.target.value;
-    const numericValue = parseInt(text.replace(/[^0-9]/g, "")) || '';
+    const numericValue = parseInt(text.replace(/[^0-9]/g, "")) || 0;
     arr[index].bonus = numericValue > 100 ? 100 : numericValue;
     arr[index].index = index;
     setDices(arr);
@@ -158,7 +163,7 @@ function App() {
 
   const handleChangeRange = (e) => {
     const text = e.target.value;
-    const numericValue = parseInt(text.replace(/[^0-9]/g, "")) || '';
+    const numericValue = parseInt(text.replace(/[^0-9]/g, "")) || "";
     setRange(numericValue);
   };
 
@@ -212,44 +217,59 @@ function App() {
   const listedDices = renderDiceInputs();
 
   return (
-    <Container maxWidth="md">
-      <Box display="flex" flexDirection="column" alignItems="center" gap={2}>
-        <Typography variant="h3" align="center">
-          Calculadora Probabilística de Dados
-        </Typography>
-        <Box display="flex" gap={2}>
-          <TextField
-            value={opType}
-            onChange={(e) => setOpType(e.target.value)}
-            select
-            label="Condições"
-            helperText="Defina uma condição"
-          >
-            <MenuItem value={"lte"}>Menor ou igual a:</MenuItem>
-            <MenuItem value={"gte"}>Maior ou igual a:</MenuItem>
-            <MenuItem value={"lt"}>Menor que:</MenuItem>
-            <MenuItem value={"gt"}>Maior que:</MenuItem>
-          </TextField>
-          <TextField
-            value={range}
-            onChange={(e) => handleChangeRange(e)}
-            label="Intervalo"
-            helperText="Defina um intervalo"
-          />
-        </Box>
+    <>
+      <ToastContainer
+        data-testid="toast-container"
+        position="bottom-left"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss={false}
+        draggable={false}
+        pauseOnHover={false}
+        theme="colored"
+      />
+      <Container maxWidth="md">
+        <Box display="flex" flexDirection="column" alignItems="center" gap={2}>
+          <Typography variant="h3" align="center">
+            Calculadora Probabilística de Dados
+          </Typography>
+          <Box display="flex" gap={2}>
+            <TextField
+              value={opType}
+              onChange={(e) => setOpType(e.target.value)}
+              select
+              label="Condições"
+              helperText="Defina uma condição"
+            >
+              <MenuItem value={"lte"}>Menor ou igual a:</MenuItem>
+              <MenuItem value={"gte"}>Maior ou igual a:</MenuItem>
+              <MenuItem value={"lt"}>Menor que:</MenuItem>
+              <MenuItem value={"gt"}>Maior que:</MenuItem>
+            </TextField>
+            <TextField
+              value={range}
+              onChange={(e) => handleChangeRange(e)}
+              label="Intervalo"
+              helperText="Defina um intervalo"
+            />
+          </Box>
 
-        <Button variant="contained" onClick={handleAddDice}>
-          Adicionar dado
-        </Button>
-        <Box className="dices-container">{listedDices}</Box>
-        <Button variant="contained" onClick={handleCalculate}>
-          Calcular
-        </Button>
-        <Typography variant="h5" align="center">
-          {answer}
-        </Typography>
-      </Box>
-    </Container>
+          <Button variant="contained" onClick={handleAddDice}>
+            Adicionar dado
+          </Button>
+          <Box data-testid="dices-container">{listedDices}</Box>
+          <Button variant="contained" onClick={handleCalculate}>
+            Calcular
+          </Button>
+          <Typography data-testid='response-container' variant="h5" align="center">
+            {answer}
+          </Typography>
+        </Box>
+      </Container>
+    </>
   );
 }
 
